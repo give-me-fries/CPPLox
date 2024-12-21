@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Interpreter.h"
+#include "../Error/Error.h"
 
 void Interpreter::runFile(const std::string& path)
 {
@@ -22,6 +23,10 @@ void Interpreter::runFile(const std::string& path)
     infile.close();
     
     Interpreter::run(buf.str());
+
+    // Indicate an error in the exit code/
+    if (Error::hadError)
+        std::exit(65);
 }
 
 void Interpreter::runPrompt()
@@ -37,6 +42,7 @@ void Interpreter::runPrompt()
         if (!std::cin) break;
 
         Interpreter::run(line);
+        Error::hadError = false;
     }
 }
 
