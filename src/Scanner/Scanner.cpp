@@ -161,7 +161,8 @@ void Scanner::string()
     advance();
 
     // Trim the surrounding quotes.
-    std::string value = m_source.substr(m_start + 1, m_current - m_start - 1);
+    std::string value = m_source.substr(m_start + 1, m_current - m_start - 2);
+    std::cout << value << '\n';
     addToken(TokenType::STRING, value);
 }
 
@@ -181,13 +182,12 @@ void Scanner::number()
         // Consume the ".".
         advance();
 
-        while (isDigit((peek())))
-            advance();
-        
-        addToken(
-            TokenType::NUMBER,
-            std::stod(m_source.substr(m_start, m_current - m_start)));
+        while (isDigit((peek()))) advance();
     }
+    
+    addToken(
+        TokenType::NUMBER,
+        std::stod(m_source.substr(m_start, m_current - m_start)));
 }
 
 char Scanner::peekNext() const
