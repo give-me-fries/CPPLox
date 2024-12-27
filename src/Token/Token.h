@@ -1,3 +1,4 @@
+#pragma once
 #include <array>
 #include <iostream>
 #include <string>
@@ -80,6 +81,6 @@ private:
 
     const TokenType::Type m_type{ TokenType::MAXTOKENTYPE };
     const std::string m_lexeme{};
-    const Object m_literal{};
+    const Object m_literal{ std::monostate{} };
     const int m_line{};
 };

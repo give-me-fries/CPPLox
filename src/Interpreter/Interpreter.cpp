@@ -1,4 +1,3 @@
-#include <cstddef>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -7,6 +6,8 @@
 
 #include "Interpreter.h"
 #include "../Error/Error.h"
+#include "../Scanner/Scanner.h"
+#include "../Token/Token.h"
 
 void Interpreter::runFile(const std::string& path)
 {
@@ -48,11 +49,11 @@ void Interpreter::runPrompt()
 
 void Interpreter::run(const std::string& source)
 {
-    // Scanner scanner{ source };
-    // std::vector<Token> tokens{ scanner.scanTokens() };
+    Scanner scanner{ source };
+    std::vector<Token> tokens{ scanner.scanTokens() };
 
-    // for (const auto& token : tokens)
-    // {
-    //     std::cout << token;
-    // }
+    for (const auto& token : tokens)
+    {
+        std::cout << token << '\n';
+    }
 }
