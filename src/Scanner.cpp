@@ -1,7 +1,7 @@
 #include <string>
 #include <variant>
 
-#include "../Error/Error.h"
+#include "Error.h"
 #include "Scanner.h"
 
 using namespace TokenType;
@@ -27,7 +27,7 @@ const std::map<std::string, TokenType::Type> Scanner::keywords {
 
 bool Scanner::isAtEnd() const
 {
-    return m_current >= m_source.size();
+    return m_current >= static_cast<int>(m_source.size());
 }
 
 void Scanner::scanToken()
@@ -141,7 +141,6 @@ bool Scanner::match(char expected)
     return true;
 }
 
-// TODO: Fix not properly trimming string
 void Scanner::string()
 {
     while (peek() != '"' && !isAtEnd())
@@ -171,7 +170,6 @@ bool Scanner::isDigit(char c) const
     return c >= '0' && c <= '9';
 }
 
-// TODO: Fix not properly identifying numbers
 void Scanner::number()
 {
     while (isDigit(peek())) advance();
@@ -192,7 +190,7 @@ void Scanner::number()
 
 char Scanner::peekNext() const
 {
-    if (m_current + 1 >= m_source.size())
+    if (m_current + 1 >= static_cast<int>(m_source.size()))
         return '\0';
     return m_source.at(m_current + 1);
 }

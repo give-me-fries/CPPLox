@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "Interpreter/Interpreter.h"
+#include "Interpreter.h"
 
 int main(int argc, char** argv)
 {

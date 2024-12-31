@@ -5,9 +5,9 @@
 #include <vector>
 
 #include "Interpreter.h"
-#include "../Error/Error.h"
-#include "../Scanner/Scanner.h"
-#include "../Token/Token.h"
+#include "Error.h"
+#include "Scanner.h"
+#include "Token.h"
 
 void Interpreter::runFile(const std::string& path)
 {

@@ -33,8 +33,9 @@
 *.app
 
 # Directories
-challenges/
 .vscode/
+challenges/
+build/
 
-# Program
-cpplox
+# Test files
+test.lox
