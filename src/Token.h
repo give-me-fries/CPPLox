@@ -11,22 +11,51 @@ namespace TokenType
     enum Type
     {
         // Single-character tokens.
-        LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE,
-        COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
+        LEFT_PAREN,
+        RIGHT_PAREN,
+        LEFT_BRACE,
+        RIGHT_BRACE,
+        COMMA,
+        DOT,
+        MINUS,
+        PLUS,
+        SEMICOLON,
+        SLASH,
+        STAR,
 
         // One or two character tokens.
-        BANG, BANG_EQUAL,
-        EQUAL, EQUAL_EQUAL,
-        GREATER, GREATER_EQUAL,
-        LESS, LESS_EQUAL,
+        BANG,
+        BANG_EQUAL,
+        EQUAL,
+        EQUAL_EQUAL,
+        GREATER,
+        GREATER_EQUAL,
+        LESS,
+        LESS_EQUAL,
 
         // Literals.
-        IDENTIFIER, STRING, NUMBER,
+        IDENTIFIER,
+        STRING,
+        NUMBER,
 
         // Keywords.
-        AND, CLASS, ELSE, FALSE, FUN, FOR, IF, NIL, OR,
-        PRINT, RETURN, SUPER, THIS, TRUE, VAR, WHILE,
-        
+        AND,
+        CLASS,
+        ELSE,
+        FALSE,
+        FUN,
+        FOR,
+        IF,
+        NIL,
+        OR,
+        PRINT,
+        RETURN,
+        SUPER,
+        THIS,
+        TRUE,
+        VAR,
+        WHILE,
+
         // End of file.
         LOX_EOF,
 
@@ -36,15 +65,13 @@ namespace TokenType
 
     using namespace std::string_literals;
     constexpr std::array TYPES{
-                // Single-character tokens.
-        "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE",
-        "COMMA", "DOT", "MINUS", "PLUS", "SEMICOLON", "SLASH", "STAR",
+        // Single-character tokens.
+        "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE", "COMMA",
+        "DOT", "MINUS", "PLUS", "SEMICOLON", "SLASH", "STAR",
 
         // One or two character tokens.
-        "BANG", "BANG_EQUAL",
-        "EQUAL", "EQUAL_EQUAL",
-        "GREATER", "GREATER_EQUAL",
-        "LESS", "LESS_EQUAL",
+        "BANG", "BANG_EQUAL", "EQUAL", "EQUAL_EQUAL", "GREATER",
+        "GREATER_EQUAL", "LESS", "LESS_EQUAL",
 
         // Literals.
         "IDENTIFIER", "STRING", "NUMBER",
@@ -52,29 +79,29 @@ namespace TokenType
         // Keywords.
         "AND", "CLASS", "ELSE", "FALSE", "FUN", "FOR", "IF", "NIL", "OR",
         "PRINT", "RETURN", "SUPER", "THIS", "TRUE", "VAR", "WHILE",
-        
-        // End of file.
-        "LOX_EOF"
-    };
-    static_assert(std::size(TYPES) == Type::MAXTOKENTYPE);
 
-    std::string getType(Type type);
-}
+        // End of file.
+        "LOX_EOF" };
+    static_assert( std::size( TYPES ) == Type::MAXTOKENTYPE );
+
+    std::string getType( Type type );
+} // namespace TokenType
+
+std::string objectToString( const Object& obj );
 
 class Token
 {
 public:
-    Token(TokenType::Type type, std::string lexeme, Object literal, int line)
-        : m_type{ type }
-        , m_lexeme{ lexeme }
-        , m_literal{ literal }
-        , m_line{ line }
+    Token( TokenType::Type type, std::string lexeme, Object literal, int line )
+        : m_type{ type }, m_lexeme{ lexeme }, m_literal{ literal },
+          m_line{ line }
     {
     }
 
     std::string toString() const;
+    const std::string& getLexeme() const;
 
-    friend std::ostream& operator<<(std::ostream& out, const Token& token);
+    friend std::ostream& operator<<( std::ostream& out, const Token& token );
 
 private:
     std::string literalToString() const;

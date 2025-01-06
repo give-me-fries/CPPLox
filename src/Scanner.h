@@ -8,8 +8,7 @@
 class Scanner
 {
 public:
-    Scanner(std::string source)
-        : m_source{ source }
+    Scanner( std::string source ) : m_source{ source }
     {
     }
 
@@ -20,16 +19,16 @@ private:
     void scanToken();
     char advance();
     char peek() const;
-    bool match(char expected);
+    bool match( char expected );
     void string();
-    bool isDigit(char c) const;
+    bool isDigit( char c ) const;
     void number();
     char peekNext() const;
     void identifier();
-    bool isAlpha(char c) const;
-    bool isAlphaNumeric(char c) const;
-    void addToken(TokenType::Type type);
-    void addToken(TokenType::Type type, Object literal);
+    bool isAlpha( char c ) const;
+    bool isAlphaNumeric( char c ) const;
+    void addToken( TokenType::Type type );
+    void addToken( TokenType::Type type, Object literal );
 
     int m_start{ 0 };
     int m_current{ 0 };

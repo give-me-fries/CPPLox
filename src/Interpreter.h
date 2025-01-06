@@ -3,7 +3,7 @@
 
 namespace Interpreter
 {
-    void runFile(const std::string& path);
+    void runFile( const std::string& path );
     void runPrompt();
-    void run(const std::string& source);
-}
+    void run( const std::string& source );
+} // namespace Interpreter
