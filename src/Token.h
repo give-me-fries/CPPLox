@@ -99,7 +99,7 @@ public:
     }
 
     std::string toString() const;
-    const std::string& getLexeme() const;
+    std::string getLexeme() const;
 
     friend std::ostream& operator<<( std::ostream& out, const Token& token );
 

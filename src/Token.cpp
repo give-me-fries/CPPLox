@@ -20,7 +20,7 @@ std::string Token::toString() const
                         literalToString() };
 }
 
-const std::string& Token::getLexeme() const
+std::string Token::getLexeme() const
 {
     return m_lexeme;
 }
