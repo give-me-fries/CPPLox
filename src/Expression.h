@@ -26,10 +26,7 @@ struct Expr
 
 struct Binary : public Expr
 {
-    void accept( IVisitor* visitor )
-    {
-        visitor->visit( this );
-    }
+    void accept( IVisitor* visitor ) override;
 
     Binary( std::unique_ptr<Expr> left, const Token& op,
             std::unique_ptr<Expr> right )
@@ -44,10 +41,7 @@ struct Binary : public Expr
 
 struct Grouping : public Expr
 {
-    void accept( IVisitor* visitor ) override
-    {
-        visitor->visit( this );
-    }
+    void accept( IVisitor* visitor ) override;
 
     Grouping( std::unique_ptr<Expr> expr ) : expr{ std::move( expr ) }
     {
@@ -58,10 +52,7 @@ struct Grouping : public Expr
 
 struct Literal : public Expr
 {
-    void accept( IVisitor* visitor ) override
-    {
-        visitor->visit( this );
-    }
+    void accept( IVisitor* visitor ) override;
 
     Literal( const Object& value ) : value{ value }
     {
@@ -72,10 +63,7 @@ struct Literal : public Expr
 
 struct Unary : public Expr
 {
-    void accept( IVisitor* visitor ) override
-    {
-        visitor->visit( this );
-    }
+    void accept( IVisitor* visitor ) override;
 
     Unary( const Token& op, std::unique_ptr<Expr> right )
         : op{ op }, right{ std::move( right ) }

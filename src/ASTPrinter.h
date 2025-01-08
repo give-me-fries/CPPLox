@@ -1,6 +1,6 @@
 #pragma once
 #include <initializer_list>
-#include <variant>
+#include <string>
 
 #include "Expression.h"
 #include "Token.h"
@@ -11,48 +11,18 @@ private:
     std::string m_tree{};
 
     void parenthesize( const std::string& name,
-                       std::initializer_list<Expr*> exprs )
-    {
-        m_tree += '(' + name;
-        for ( auto expr : exprs )
-        {
-            m_tree += ' ';
-            expr->accept( this );
-        }
-        m_tree += ")";
-    }
+                       std::initializer_list<Expr*> exprs );
 
 public:
-    ASTPrinter() = default;
+    void print( Expr* expr );
 
-    void print( Expr* expr )
-    {
-        expr->accept( this );
-    }
+    void visit( Binary* expr );
 
-    void visit( Binary* expr )
-    {
-        parenthesize( expr->op.getLexeme(),
-                      { expr->left.get(), expr->right.get() } );
-    }
+    void visit( Grouping* expr );
 
-    void visit( Grouping* expr )
-    {
-        parenthesize( "group", { expr->expr.get() } );
-    }
+    void visit( Literal* expr );
 
-    void visit( Literal* expr )
-    {
-        m_tree += objectToString( expr->value );
-    }
+    void visit( Unary* expr );
 
-    void visit( Unary* expr )
-    {
-        parenthesize( expr->op.getLexeme(), { expr->right.get() } );
-    }
-
-    const std::string& getTree() const
-    {
-        return m_tree;
-    }
+    const std::string& getTree() const;
 };

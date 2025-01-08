@@ -33,6 +33,8 @@ int main( int argc, char** argv )
 
         printer.print( &expression );
         std::cout << printer.getTree() << '\n';
+
+        Interpreter::runPrompt();
     }
 
     return 0;
