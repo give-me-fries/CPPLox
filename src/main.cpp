@@ -23,16 +23,16 @@ int main( int argc, char** argv )
     {
         ASTPrinter printer{};
 
-        Binary e{
-            new Unary{ Token{ TokenType::MINUS, "-", std::monostate{}, 1 },
-                       new Literal{ Object{ 123.0 } } },
+        Binary expression{
+            std::make_unique<Unary>(
+                Token{ TokenType::MINUS, "-", std::monostate{}, 1 },
+                std::make_unique<Literal>( Object{ 123.0 } ) ),
             Token{ TokenType::STAR, "*", std::monostate{}, 1 },
-            new Grouping{ new Literal{ Object{ 45.67 } } } };
+            std::make_unique<Grouping>(
+                std::make_unique<Literal>( Object{ 45.67 } ) ) };
 
-        printer.print( &e );
-        std::cout << printer.getTree();
-
-        Interpreter::runPrompt();
+        printer.print( &expression );
+        std::cout << printer.getTree() << '\n';
     }
 
     return 0;

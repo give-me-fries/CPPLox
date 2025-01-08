@@ -2,7 +2,6 @@
 #include <memory>
 #include <string>
 
-#include "ASTPrinter.h"
 #include "Token.h"
 
 struct Binary;
@@ -32,7 +31,8 @@ struct Binary : public Expr
         visitor->visit( this );
     }
 
-    Binary( Expr* left, const Token& op, Expr* right )
+    Binary( std::unique_ptr<Expr> left, const Token& op,
+            std::unique_ptr<Expr> right )
         : left{ std::move( left ) }, op{ op }, right{ std::move( right ) }
     {
     }
@@ -49,7 +49,7 @@ struct Grouping : public Expr
         visitor->visit( this );
     }
 
-    Grouping( Expr* expr ) : expr{ std::move( expr ) }
+    Grouping( std::unique_ptr<Expr> expr ) : expr{ std::move( expr ) }
     {
     }
 
@@ -77,7 +77,7 @@ struct Unary : public Expr
         visitor->visit( this );
     }
 
-    Unary( const Token& op, Expr* right )
+    Unary( const Token& op, std::unique_ptr<Expr> right )
         : op{ op }, right{ std::move( right ) }
     {
     }

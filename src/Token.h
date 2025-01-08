@@ -60,7 +60,7 @@ namespace TokenType
         LOX_EOF,
 
         // Max enumerations.
-        MAXTOKENTYPE
+        MAX_TOKENTYPE
     };
 
     using namespace std::string_literals;
@@ -81,8 +81,8 @@ namespace TokenType
         "PRINT", "RETURN", "SUPER", "THIS", "TRUE", "VAR", "WHILE",
 
         // End of file.
-        "LOX_EOF" };
-    static_assert( std::size( TYPES ) == Type::MAXTOKENTYPE );
+        "EOF" };
+    static_assert( std::size( TYPES ) == Type::MAX_TOKENTYPE );
 
     std::string getType( Type type );
 } // namespace TokenType
@@ -106,7 +106,7 @@ public:
 private:
     std::string literalToString() const;
 
-    const TokenType::Type m_type{ TokenType::MAXTOKENTYPE };
+    const TokenType::Type m_type{ TokenType::MAX_TOKENTYPE };
     const std::string m_lexeme{};
     const Object m_literal{ std::monostate{} };
     const int m_line{};

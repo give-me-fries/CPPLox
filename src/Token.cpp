@@ -42,5 +42,10 @@ std::string objectToString( const Object& obj )
     else if ( obj.index() == 1 )
         return std::get<std::string>( obj );
     else
-        return std::to_string( std::get<double>( obj ) );
+    {
+        std::string res = std::to_string( std::get<double>( obj ) );
+        res.erase( res.find_last_not_of( '0' ) + 1, std::string::npos );
+        res.erase( res.find_last_not_of( '.' ) + 1, std::string::npos );
+        return res;
+    }
 }
