@@ -83,10 +83,10 @@ void Scanner::scanToken()
             addToken( SLASH );
         }
         break;
+        // Ignore whitespace.
     case ' ':
     case '\r':
     case '\t':
-        // Ignore whitespace.
         break;
     case '\n':
         m_line++;

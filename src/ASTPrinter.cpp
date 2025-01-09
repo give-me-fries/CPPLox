@@ -11,10 +11,10 @@ void ASTPrinter::parenthesize( const std::string& name,
     m_tree += '(' + name;
     for ( auto expr : exprs )
     {
-        m_tree += ' ';
+        m_tree += " ";
         expr->accept( this );
     }
-    m_tree += ")";
+    m_tree += ')';
 }
 
 void ASTPrinter::print( Expr* expr )
@@ -24,21 +24,25 @@ void ASTPrinter::print( Expr* expr )
 
 void ASTPrinter::visit( Binary* expr )
 {
+    std::cout << "Binary\n";
     parenthesize( expr->op.getLexeme(),
                   { expr->left.get(), expr->right.get() } );
 }
 void ASTPrinter::visit( Grouping* expr )
 {
+    std::cout << "Grouping\n";
     parenthesize( "group", { expr->expr.get() } );
 }
 
 void ASTPrinter::visit( Literal* expr )
 {
+    std::cout << "Literal\n";
     m_tree += objectToString( expr->value );
 }
 
 void ASTPrinter::visit( Unary* expr )
 {
+    std::cout << "Unary\n";
     parenthesize( expr->op.getLexeme(), { expr->right.get() } );
 }
 

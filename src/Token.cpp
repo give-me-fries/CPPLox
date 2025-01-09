@@ -25,6 +25,16 @@ std::string Token::getLexeme() const
     return m_lexeme;
 }
 
+TokenType::Type Token::getType() const
+{
+    return m_type;
+}
+
+int Token::getLine() const
+{
+    return m_line;
+}
+
 std::string Token::literalToString() const
 {
     if ( m_literal.index() == 0 )

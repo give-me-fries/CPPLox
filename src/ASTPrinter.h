@@ -15,14 +15,9 @@ private:
 
 public:
     void print( Expr* expr );
-
     void visit( Binary* expr );
-
     void visit( Grouping* expr );
-
     void visit( Literal* expr );
-
     void visit( Unary* expr );
-
     const std::string& getTree() const;
 };

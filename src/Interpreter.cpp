@@ -1,11 +1,15 @@
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <vector>
 
+#include "ASTPrinter.h"
 #include "Error.h"
+#include "Expression.h"
 #include "Interpreter.h"
+#include "Parser.h"
 #include "Scanner.h"
 #include "Token.h"
 
@@ -53,8 +57,13 @@ void Interpreter::run( const std::string& source )
     Scanner scanner{ source };
     std::vector<Token> tokens{ scanner.scanTokens() };
 
-    for ( const auto& token : tokens )
-    {
-        std::cout << token << '\n';
-    }
+    Parser parser{ tokens };
+    std::unique_ptr<Expr> expression = parser.parse();
+
+    if ( Error::hadError )
+        return;
+
+    ASTPrinter printer{};
+    printer.print( expression.get() );
+    std::cout << printer.getTree();
 }

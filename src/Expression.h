@@ -15,13 +15,17 @@ struct IVisitor
     virtual void visit( Grouping* ) = 0;
     virtual void visit( Literal* ) = 0;
     virtual void visit( Unary* ) = 0;
-    virtual ~IVisitor() = default;
+    virtual ~IVisitor()
+    {
+    }
 };
 
 struct Expr
 {
     virtual void accept( IVisitor* visitor ) = 0;
-    virtual ~Expr() = default;
+    virtual ~Expr()
+    {
+    }
 };
 
 struct Binary : public Expr
@@ -54,7 +58,7 @@ struct Literal : public Expr
 {
     void accept( IVisitor* visitor ) override;
 
-    Literal( const Object& value ) : value{ value }
+    Literal( const Object value ) : value{ value }
     {
     }
 
@@ -65,7 +69,7 @@ struct Unary : public Expr
 {
     void accept( IVisitor* visitor ) override;
 
-    Unary( const Token& op, std::unique_ptr<Expr> right )
+    Unary( const Token op, std::unique_ptr<Expr> right )
         : op{ op }, right{ std::move( right ) }
     {
     }

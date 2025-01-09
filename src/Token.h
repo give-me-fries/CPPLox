@@ -100,12 +100,12 @@ public:
 
     std::string toString() const;
     std::string getLexeme() const;
-
+    TokenType::Type getType() const;
+    int getLine() const;
     friend std::ostream& operator<<( std::ostream& out, const Token& token );
 
 private:
     std::string literalToString() const;
-
     const TokenType::Type m_type{ TokenType::MAX_TOKENTYPE };
     const std::string m_lexeme{};
     const Object m_literal{ std::monostate{} };
