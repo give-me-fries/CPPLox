@@ -12,6 +12,7 @@ private:
 
     void parenthesize( const std::string& name,
                        std::initializer_list<Expr*> exprs );
+    void conditional( std::initializer_list<Expr*> exprs );
 
 public:
     void print( Expr* expr );

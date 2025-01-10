@@ -3,6 +3,7 @@
 
 #include "Error.h"
 #include "Scanner.h"
+#include "Token.h"
 
 using namespace TokenType;
 
@@ -59,6 +60,7 @@ void Scanner::scanToken()
     case '*':
         addToken( STAR );
         break;
+
     case '!':
         addToken( match( '=' ) ? BANG_EQUAL : BANG );
         break;
