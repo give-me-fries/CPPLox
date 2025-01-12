@@ -4,7 +4,7 @@
 #include <string>
 #include <variant>
 
-using Object = std::variant<std::monostate, std::string, double>;
+using Object = std::variant<std::monostate, std::string, double, bool>;
 
 namespace TokenType
 {
@@ -103,6 +103,7 @@ public:
     TokenType::Type getType() const;
     int getLine() const;
     friend std::ostream& operator<<( std::ostream& out, const Token& token );
+    const Object& getLiteral() const;
 
 private:
     std::string literalToString() const;

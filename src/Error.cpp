@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <string_view>
 
 #include "Error.h"
 #include "Token.h"
@@ -21,10 +22,26 @@ void Error::error( Token token, const std::string& message )
     }
 }
 
+void Error::runtimeError( const RuntimeError& error )
+{
+    std::cerr << error.what() << "\n[line " << error.getToken() << ']';
+    hadRuntimeError = true;
+}
+
 void Error::report( int line, const std::string& where,
                     const std::string& message )
 {
     std::cout << "[line " << line << "] Error" << where << ": " << message
               << '\n';
     Error::hadError = true;
+}
+
+Error::RuntimeError::RuntimeError( Token token, std::string_view error )
+    : m_token{ token }, m_error{ error }
+{
+}
+
+const Token& Error::RuntimeError::getToken() const
+{
+    return m_token;
 }

@@ -1,69 +1,191 @@
-#include <fstream>
-#include <iostream>
 #include <memory>
-#include <sstream>
 #include <string>
-#include <vector>
+#include <variant>
 
-#include "ASTPrinter.h"
 #include "Error.h"
 #include "Expression.h"
 #include "Interpreter.h"
-#include "Parser.h"
-#include "Scanner.h"
 #include "Token.h"
 
-void Interpreter::runFile( const std::string& path )
+void Interpreter::interpret( Expr* expr )
 {
-    std::ifstream infile{ path };
-
-    if ( !infile )
+    try
     {
-        std::cout << "Error: invalid file path\n";
-        std::exit( 64 );
+        evaluate( expr );
+        std::cout << stringify( m_object );
     }
-
-    std::stringstream buf{};
-    buf << infile.rdbuf();
-    infile.close();
-
-    Interpreter::run( buf.str() );
-
-    // Indicate an error in the exit code/
-    if ( Error::hadError )
-        std::exit( 65 );
-}
-
-void Interpreter::runPrompt()
-{
-    while ( true )
+    catch ( const Error::RuntimeError& error )
     {
-        std::cout << "> ";
-
-        std::string line{};
-        std::getline( std::cin, line );
-
-        // If Control-D then exit
-        if ( !std::cin )
-            break;
-
-        Interpreter::run( line );
-        Error::hadError = false;
+        runtimeError( error );
     }
 }
 
-void Interpreter::run( const std::string& source )
+void Interpreter::visit( Literal* expr )
 {
-    Scanner scanner{ source };
-    std::vector<Token> tokens{ scanner.scanTokens() };
+    m_object = expr->value;
+}
 
-    Parser parser{ tokens };
-    std::unique_ptr<Expr> expression = parser.parse();
+void Interpreter::visit( Unary* expr )
+{
+    evaluate( expr->right.get() );
 
-    if ( Error::hadError )
+    Object right = m_object;
+
+    switch ( expr->op.getType() )
+    {
+    case TokenType::BANG:
+        m_object = !isTruthy( right );
+        return;
+    case TokenType::MINUS:
+        checkNumberOperand( expr->op, right );
+        m_object = -std::get<double>( right );
+        return;
+    default:
+        m_object = std::monostate{};
+        return;
+    }
+}
+
+void Interpreter::visit( Grouping* expr )
+{
+    evaluate( expr->expr.get() );
+}
+
+void Interpreter::visit( Binary* expr )
+{
+    evaluate( expr->left.get() );
+    Object left = m_object;
+
+    evaluate( expr->right.get() );
+    Object right = m_object;
+
+    switch ( expr->op.getType() )
+    {
+    case TokenType::GREATER:
+        checkNumberOperands( expr->op, left, right );
+        m_object = std::get<double>( left ) > std::get<double>( right );
+        return;
+    case TokenType::GREATER_EQUAL:
+        checkNumberOperands( expr->op, left, right );
+        m_object = std::get<double>( left ) >= std::get<double>( right );
+        return;
+    case TokenType::LESS:
+        checkNumberOperands( expr->op, left, right );
+        m_object = std::get<double>( left ) < std::get<double>( right );
+        return;
+    case TokenType::LESS_EQUAL:
+        checkNumberOperands( expr->op, left, right );
+        m_object = std::get<double>( left ) <= std::get<double>( right );
+        return;
+    case TokenType::BANG_EQUAL:
+        m_object = !isEqual( left, right );
+        return;
+    case TokenType::EQUAL_EQUAL:
+        m_object = isEqual( left, right );
+        return;
+    case TokenType::MINUS:
+        checkNumberOperands( expr->op, left, right );
+        m_object = std::get<double>( left ) - std::get<double>( right );
+        return;
+    case TokenType::PLUS:
+        // Doubles
+        if ( left.index() == 2 && right.index() == 2 )
+        {
+            m_object = std::get<double>( left ) + std::get<double>( right );
+            return;
+        }
+        // Strings
+        if ( left.index() == 1 && right.index() == 1 )
+        {
+            m_object =
+                std::get<std::string>( left ) + std::get<std::string>( right );
+            return;
+        }
+
+        throw Error::RuntimeError{
+            expr->op, "Operands must be two numbers or two strings." };
+    case TokenType::SLASH:
+        checkNumberOperands( expr->op, left, right );
+        m_object = std::get<double>( left ) / std::get<double>( right );
+        return;
+    case TokenType::STAR:
+        checkNumberOperands( expr->op, left, right );
+        m_object = std::get<double>( left ) * std::get<double>( right );
+        return;
+    default:
+        m_object = std::monostate{};
+        return;
+    }
+}
+
+void Interpreter::evaluate( Expr* expr )
+{
+    expr->accept( this );
+}
+
+void Interpreter::checkNumberOperand( const Token& op, const Object& operand )
+{
+    if ( operand.index() == 2 )
         return;
 
-    ASTPrinter printer{};
-    printer.print( expression.get() );
-    std::cout << printer.getTree();
+    throw Error::RuntimeError{ op, "Operand must be a number." };
+}
+
+void Interpreter::checkNumberOperands( const Token& op, const Object& left,
+                                       const Object& right )
+{
+    if ( left.index() == 2 && right.index() == 2 )
+        return;
+
+    throw Error::RuntimeError{ op, "Operands must be numbers." };
+}
+
+bool Interpreter::isTruthy( const Object& object )
+{
+    if ( object.index() == 0 )
+        return false;
+    if ( object.index() == 3 )
+        return std::get<bool>( object );
+
+    return true;
+}
+
+bool Interpreter::isEqual( const Object& a, const Object& b )
+{
+    // Both null
+    if ( a.index() == 0 && b.index() == 0 )
+        return true;
+
+    // A or B is null
+    if ( a.index() == 0 || b.index() == 0 )
+        return false;
+
+    // Strings
+    if ( a.index() == 1 && b.index() == 1 )
+    {
+        return std::get<std::string>( a ) == std::get<std::string>( b );
+    }
+
+    // Doubles
+    if ( a.index() == 2 && b.index() == 2 )
+    {
+        return std::get<double>( a ) == std::get<double>( b );
+    }
+
+    // Booleans
+    if ( a.index() == 3 && a.index() == 3 )
+    {
+        return std::get<bool>( a ) == std::get<bool>( b );
+    }
+
+    // None
+    return false;
+}
+
+std::string Interpreter::stringify( const Object& object )
+{
+    if ( object.index() == 0 )
+        return "nil";
+    else
+        return objectToString( object );
 }

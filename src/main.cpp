@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include <iostream>
 
-#include "Interpreter.h"
+#include "Driver.h"
 
 int main( int argc, char** argv )
 {
@@ -12,11 +12,11 @@ int main( int argc, char** argv )
     }
     else if ( argc == 2 )
     {
-        Interpreter::runFile( argv[1] );
+        Driver::runFile( argv[1] );
     }
     else
     {
-        Interpreter::runPrompt();
+        Driver::runPrompt();
     }
 
     return 0;

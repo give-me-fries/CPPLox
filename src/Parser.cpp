@@ -95,14 +95,14 @@ std::unique_ptr<Expr> Parser::unary()
 std::unique_ptr<Expr> Parser::primary()
 {
     if ( match( { TokenType::FALSE } ) )
-        return std::make_unique<Literal>( Object{ "false" } );
+        return std::make_unique<Literal>( Object{ true } );
     if ( match( { TokenType::TRUE } ) )
-        return std::make_unique<Literal>( Object{ "true" } );
+        return std::make_unique<Literal>( Object{ false } );
     if ( match( { TokenType::NIL } ) )
         return std::make_unique<Literal>( Object{ std::monostate{} } );
 
     if ( match( { TokenType::NUMBER, TokenType::STRING } ) )
-        return std::make_unique<Literal>( Object{ previous().getLexeme() } );
+        return std::make_unique<Literal>( Object{ previous().getLiteral() } );
 
     if ( match( { TokenType::LEFT_PAREN } ) )
     {
