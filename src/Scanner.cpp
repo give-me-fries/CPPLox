@@ -156,7 +156,6 @@ void Scanner::string()
 
     // Trim the surrounding quotes.
     std::string value = m_source.substr( m_start + 1, m_current - m_start - 2 );
-    std::cout << value << '\n';
     addToken( TokenType::STRING, value );
 }
 

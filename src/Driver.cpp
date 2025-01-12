@@ -29,7 +29,7 @@ void Driver::runFile( const std::string& path )
 
     Driver::run( buf.str() );
 
-    // Indicate an error in the exit code/
+    // Indicate an error in the exit code
     if ( Error::hadError )
         std::exit( 65 );
     if ( Error::hadRuntimeError )

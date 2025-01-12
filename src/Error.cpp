@@ -24,7 +24,8 @@ void Error::error( Token token, const std::string& message )
 
 void Error::runtimeError( const RuntimeError& error )
 {
-    std::cerr << error.what() << "\n[line " << error.getToken() << ']';
+    std::cerr << error.what() << "\n[line " << error.getToken().getLine()
+              << ']';
     hadRuntimeError = true;
 }
 
@@ -39,6 +40,11 @@ void Error::report( int line, const std::string& where,
 Error::RuntimeError::RuntimeError( Token token, std::string_view error )
     : m_token{ token }, m_error{ error }
 {
+}
+
+const char* Error::RuntimeError::what() const noexcept
+{
+    return m_error.c_str();
 }
 
 const Token& Error::RuntimeError::getToken() const

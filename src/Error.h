@@ -14,6 +14,7 @@ namespace Error
 
     public:
         RuntimeError( Token token, std::string_view error );
+        const char* what() const noexcept override;
         const Token& getToken() const;
     };
 
