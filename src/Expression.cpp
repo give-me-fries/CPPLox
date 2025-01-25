@@ -1,4 +1,5 @@
 #include "Expression.h"
+#include "Visitor.h"
 
 void Binary::accept( IVisitor* visitor )
 {

@@ -8,6 +8,7 @@
 #include "Error.h"
 #include "Expression.h"
 #include "Parser.h"
+#include "Statement.h"
 #include "Token.h"
 
 ParseError::ParseError( const std::string& error ) : std::runtime_error{ error }
@@ -17,6 +18,30 @@ ParseError::ParseError( const std::string& error ) : std::runtime_error{ error }
 std::unique_ptr<Expr> Parser::expression()
 {
     return equality();
+}
+
+std::unique_ptr<Stmt> Parser::statement()
+{
+    if ( match( { TokenType::PRINT } ) )
+    {
+        return printStatement();
+    }
+
+    return expressionStatement();
+}
+
+std::unique_ptr<Stmt> Parser::printStatement()
+{
+    std::unique_ptr<Expr> value = expression();
+    consume( TokenType::SEMICOLON, "Expect ';' after value." );
+    return std::make_unique<Print>( std::move( value ) );
+}
+
+std::unique_ptr<Stmt> Parser::expressionStatement()
+{
+    std::unique_ptr<Expr> expr = expression();
+    consume( TokenType::SEMICOLON, "Expect ';' after expresison." );
+    return std::make_unique<Expression>( std::move( expr ) );
 }
 
 std::unique_ptr<Expr> Parser::equality()
@@ -205,14 +230,13 @@ Parser::Parser( const std::vector<Token>& tokens ) : m_tokens{ tokens }
 {
 }
 
-std::unique_ptr<Expr> Parser::parse()
+std::vector<std::unique_ptr<Stmt>> Parser::parse()
 {
-    try
+    std::vector<std::unique_ptr<Stmt>> statements{};
+    while ( !isAtEnd() )
     {
-        return expression();
+        statements.push_back( statement() );
     }
-    catch ( const ParseError& error )
-    {
-        return nullptr;
-    }
+
+    return statements;
 }

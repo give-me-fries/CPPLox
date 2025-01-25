@@ -1,22 +1,29 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "Error.h"
 #include "Expression.h"
+#include "Statement.h"
 #include "Token.h"
+#include "Visitor.h"
 
 class Interpreter : public IVisitor
 {
 public:
-    void interpret( Expr* expr );
+    void interpret( const std::vector<std::unique_ptr<Stmt>>& statements );
     void visit( Literal* expr ) override;
     void visit( Unary* expr ) override;
     void visit( Grouping* expr ) override;
     void visit( Binary* expr ) override;
 
+    void visit( Expression* stmt ) override;
+    void visit( Print* stmt ) override;
+
 private:
     void evaluate( Expr* expr );
+    void execute( Stmt* stmt );
     void checkNumberOperand( const Token& op, const Object& operand );
     void checkNumberOperands( const Token& op, const Object& left,
                               const Object& right );

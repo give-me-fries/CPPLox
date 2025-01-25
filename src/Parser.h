@@ -9,6 +9,7 @@
 
 #include "Error.h"
 #include "Expression.h"
+#include "Statement.h"
 #include "Token.h"
 
 class ParseError : public std::runtime_error
@@ -24,6 +25,9 @@ private:
     int m_current{ 0 };
 
     std::unique_ptr<Expr> expression();
+    std::unique_ptr<Stmt> statement();
+    std::unique_ptr<Stmt> printStatement();
+    std::unique_ptr<Stmt> expressionStatement();
     std::unique_ptr<Expr> equality();
     std::unique_ptr<Expr> comparison();
     std::unique_ptr<Expr> term();
@@ -43,5 +47,5 @@ private:
 public:
     Parser( const std::vector<Token>& tokens );
 
-    std::unique_ptr<Expr> parse();
+    std::vector<std::unique_ptr<Stmt>> parse();
 };

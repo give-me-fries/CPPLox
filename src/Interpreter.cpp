@@ -1,3 +1,4 @@
+#include <iostream>
 #include <memory>
 #include <string>
 #include <variant>
@@ -5,14 +6,18 @@
 #include "Error.h"
 #include "Expression.h"
 #include "Interpreter.h"
+#include "Statement.h"
 #include "Token.h"
 
-void Interpreter::interpret( Expr* expr )
+void Interpreter::interpret(
+    const std::vector<std::unique_ptr<Stmt>>& statements )
 {
     try
     {
-        evaluate( expr );
-        std::cout << stringify( m_object );
+        for ( auto&& statement : statements )
+        {
+            execute( statement.get() );
+        }
     }
     catch ( const Error::RuntimeError& error )
     {
@@ -121,6 +126,22 @@ void Interpreter::visit( Binary* expr )
 void Interpreter::evaluate( Expr* expr )
 {
     expr->accept( this );
+}
+
+void Interpreter::execute( Stmt* stmt )
+{
+    stmt->accept( this );
+}
+
+void Interpreter::visit( Expression* stmt )
+{
+    evaluate( stmt->expression.get() );
+}
+
+void Interpreter::visit( Print* stmt )
+{
+    evaluate( stmt->expression.get() );
+    std::cout << stringify( m_object ) << '\n';
 }
 
 void Interpreter::checkNumberOperand( const Token& op, const Object& operand )

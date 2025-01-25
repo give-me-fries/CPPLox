@@ -1,25 +1,9 @@
 #pragma once
 #include <memory>
-#include <random>
 #include <string>
 
 #include "Token.h"
-
-struct Binary;
-struct Grouping;
-struct Literal;
-struct Unary;
-
-struct IVisitor
-{
-    virtual void visit( Binary* ) = 0;
-    virtual void visit( Grouping* ) = 0;
-    virtual void visit( Literal* ) = 0;
-    virtual void visit( Unary* ) = 0;
-    virtual ~IVisitor()
-    {
-    }
-};
+#include "Visitor.h"
 
 struct Expr
 {

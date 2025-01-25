@@ -7,10 +7,10 @@
 
 #include "Driver.h"
 #include "Error.h"
-#include "Expression.h"
 #include "Interpreter.h"
 #include "Parser.h"
 #include "Scanner.h"
+#include "Statement.h"
 #include "Token.h"
 
 void Driver::runFile( const std::string& path )
@@ -60,10 +60,10 @@ void Driver::run( const std::string& source )
     std::vector<Token> tokens{ scanner.scanTokens() };
 
     Parser parser{ tokens };
-    std::unique_ptr<Expr> expression = parser.parse();
+    std::vector<std::unique_ptr<Stmt>> statements = parser.parse();
 
     if ( Error::hadError )
         return;
 
-    Driver::interpreter.interpret( expression.get() );
+    Driver::interpreter.interpret( statements );
 }

@@ -14,7 +14,8 @@ add_executable(
     src/ASTPrinter.cpp
     src/Expression.cpp
     src/Parser.cpp
-    src/Interpreter.cpp)
+    src/Interpreter.cpp
+    src/Statement.cpp)
 
 set_target_properties(cpplox PROPERTIES CXX_STANDARD 17)
 target_compile_options(cpplox PRIVATE -Wall -Wextra -Wconversion -Wpedantic -g)
