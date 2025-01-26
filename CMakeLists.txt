@@ -6,16 +6,18 @@ project(CPPLOX VERSION 1.0
 
 add_executable(
     cpplox
-    src/main.cpp
-    src/Driver.cpp
-    src/Error.cpp
-    src/Token.cpp
-    src/Scanner.cpp
     src/ASTPrinter.cpp
+    src/Driver.cpp
+    src/Environment.cpp
+    src/Error.cpp
     src/Expression.cpp
-    src/Parser.cpp
     src/Interpreter.cpp
-    src/Statement.cpp)
+    src/main.cpp
+    src/Parser.cpp
+    src/Scanner.cpp
+    src/Statement.cpp
+    src/Token.cpp
+)
 
 set_target_properties(cpplox PROPERTIES CXX_STANDARD 17)
 target_compile_options(cpplox PRIVATE -Wall -Wextra -Wconversion -Wpedantic -g)

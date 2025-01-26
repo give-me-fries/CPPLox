@@ -3,6 +3,7 @@
 #include <string>
 #include <variant>
 
+#include "Environment.h"
 #include "Error.h"
 #include "Expression.h"
 #include "Interpreter.h"
@@ -49,6 +50,11 @@ void Interpreter::visit( Unary* expr )
         m_object = std::monostate{};
         return;
     }
+}
+
+void Interpreter::visit( Variable* expr )
+{
+    m_object = environment.get( expr->name );
 }
 
 void Interpreter::visit( Grouping* expr )
@@ -123,6 +129,12 @@ void Interpreter::visit( Binary* expr )
     }
 }
 
+void Interpreter::visit( Assign* expr )
+{
+    evaluate( expr->value.get() );
+    environment.assign( expr->name, m_object );
+}
+
 void Interpreter::evaluate( Expr* expr )
 {
     expr->accept( this );
@@ -131,6 +143,36 @@ void Interpreter::evaluate( Expr* expr )
 void Interpreter::execute( Stmt* stmt )
 {
     stmt->accept( this );
+}
+
+void Interpreter::executeBlock(
+    const std::vector<std::unique_ptr<Stmt>>& statements,
+    std::shared_ptr<Environment> environment )
+{
+    auto previous = this->environment;
+
+    try
+    {
+        this->environment = environment;
+
+        for ( auto&& statement : statements )
+        {
+            execute( statement.get() );
+        }
+    }
+    catch ( ... )
+    {
+        this->environment = previous;
+        throw;
+    }
+
+    this->environment = previous;
+}
+
+void Interpreter::visit( Block* stmt )
+{
+    executeBlock( stmt->statements,
+                  std::make_shared<Environment>( environment ) );
 }
 
 void Interpreter::visit( Expression* stmt )
@@ -142,6 +184,18 @@ void Interpreter::visit( Print* stmt )
 {
     evaluate( stmt->expression.get() );
     std::cout << stringify( m_object ) << '\n';
+}
+
+void Interpreter::visit( Var* stmt )
+{
+    Object value = std::monostate{};
+    if ( stmt->initializer.get() )
+    {
+        evaluate( stmt->initializer.get() );
+        value = m_object;
+    }
+
+    environment.define( stmt->name.getLexeme(), value );
 }
 
 void Interpreter::checkNumberOperand( const Token& op, const Object& operand )

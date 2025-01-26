@@ -13,6 +13,19 @@ struct Expr
     }
 };
 
+struct Assign : public Expr
+{
+    void accept( IVisitor* visitor ) override;
+
+    Assign( const Token& name, std::unique_ptr<Expr> value )
+        : name{ name }, value{ std::move( value ) }
+    {
+    }
+
+    Token name;
+    std::unique_ptr<Expr> value;
+};
+
 struct Binary : public Expr
 {
     void accept( IVisitor* visitor ) override;
@@ -61,4 +74,15 @@ struct Unary : public Expr
 
     Token op;
     std::unique_ptr<Expr> right;
+};
+
+struct Variable : public Expr
+{
+    void accept( IVisitor* visitor ) override;
+
+    Variable( const Token& name ) : name{ name }
+    {
+    }
+
+    Token name;
 };

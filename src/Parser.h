@@ -25,9 +25,13 @@ private:
     int m_current{ 0 };
 
     std::unique_ptr<Expr> expression();
+    std::unique_ptr<Expr> assignment();
+    std::unique_ptr<Stmt> declaration();
     std::unique_ptr<Stmt> statement();
     std::unique_ptr<Stmt> printStatement();
+    std::unique_ptr<Stmt> varDeclaration();
     std::unique_ptr<Stmt> expressionStatement();
+    std::vector<std::unique_ptr<Stmt>> block();
     std::unique_ptr<Expr> equality();
     std::unique_ptr<Expr> comparison();
     std::unique_ptr<Expr> term();
