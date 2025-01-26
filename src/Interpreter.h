@@ -14,12 +14,12 @@ class Interpreter : public IVisitor
 {
 public:
     void interpret( const std::vector<std::unique_ptr<Stmt>>& statements );
+    void visit( Assign* expr ) override;
+    void visit( Binary* expr ) override;
+    void visit( Grouping* expr ) override;
     void visit( Literal* expr ) override;
     void visit( Unary* expr ) override;
-    void visit( Grouping* expr ) override;
-    void visit( Binary* expr ) override;
     void visit( Variable* expr ) override;
-    void visit( Assign* expr ) override;
 
     void visit( Block* stmt ) override;
     void visit( Expression* stmt ) override;

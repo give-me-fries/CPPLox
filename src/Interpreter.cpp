@@ -26,40 +26,10 @@ void Interpreter::interpret(
     }
 }
 
-void Interpreter::visit( Literal* expr )
+void Interpreter::visit( Assign* expr )
 {
-    m_object = expr->value;
-}
-
-void Interpreter::visit( Unary* expr )
-{
-    evaluate( expr->right.get() );
-
-    Object right = m_object;
-
-    switch ( expr->op.getType() )
-    {
-    case TokenType::BANG:
-        m_object = !isTruthy( right );
-        return;
-    case TokenType::MINUS:
-        checkNumberOperand( expr->op, right );
-        m_object = -std::get<double>( right );
-        return;
-    default:
-        m_object = std::monostate{};
-        return;
-    }
-}
-
-void Interpreter::visit( Variable* expr )
-{
-    m_object = environment.get( expr->name );
-}
-
-void Interpreter::visit( Grouping* expr )
-{
-    evaluate( expr->expr.get() );
+    evaluate( expr->value.get() );
+    environment.assign( expr->name, m_object );
 }
 
 void Interpreter::visit( Binary* expr )
@@ -129,10 +99,69 @@ void Interpreter::visit( Binary* expr )
     }
 }
 
-void Interpreter::visit( Assign* expr )
+void Interpreter::visit( Grouping* expr )
 {
-    evaluate( expr->value.get() );
-    environment.assign( expr->name, m_object );
+    evaluate( expr->expr.get() );
+}
+
+void Interpreter::visit( Literal* expr )
+{
+    m_object = expr->value;
+}
+
+void Interpreter::visit( Unary* expr )
+{
+    evaluate( expr->right.get() );
+
+    Object right = m_object;
+
+    switch ( expr->op.getType() )
+    {
+    case TokenType::BANG:
+        m_object = !isTruthy( right );
+        return;
+    case TokenType::MINUS:
+        checkNumberOperand( expr->op, right );
+        m_object = -std::get<double>( right );
+        return;
+    default:
+        m_object = std::monostate{};
+        return;
+    }
+}
+
+void Interpreter::visit( Variable* expr )
+{
+    m_object = environment.get( expr->name );
+}
+
+void Interpreter::visit( Block* stmt )
+{
+    executeBlock( stmt->statements,
+                  std::make_shared<Environment>( environment ) );
+}
+
+void Interpreter::visit( Expression* stmt )
+{
+    evaluate( stmt->expression.get() );
+}
+
+void Interpreter::visit( Print* stmt )
+{
+    evaluate( stmt->expression.get() );
+    std::cout << stringify( m_object ) << '\n';
+}
+
+void Interpreter::visit( Var* stmt )
+{
+    Object value = std::monostate{};
+    if ( stmt->initializer.get() )
+    {
+        evaluate( stmt->initializer.get() );
+        value = m_object;
+    }
+
+    environment.define( stmt->name.getLexeme(), value );
 }
 
 void Interpreter::evaluate( Expr* expr )
@@ -169,35 +198,6 @@ void Interpreter::executeBlock(
     this->environment = previous;
 }
 
-void Interpreter::visit( Block* stmt )
-{
-    executeBlock( stmt->statements,
-                  std::make_shared<Environment>( environment ) );
-}
-
-void Interpreter::visit( Expression* stmt )
-{
-    evaluate( stmt->expression.get() );
-}
-
-void Interpreter::visit( Print* stmt )
-{
-    evaluate( stmt->expression.get() );
-    std::cout << stringify( m_object ) << '\n';
-}
-
-void Interpreter::visit( Var* stmt )
-{
-    Object value = std::monostate{};
-    if ( stmt->initializer.get() )
-    {
-        evaluate( stmt->initializer.get() );
-        value = m_object;
-    }
-
-    environment.define( stmt->name.getLexeme(), value );
-}
-
 void Interpreter::checkNumberOperand( const Token& op, const Object& operand )
 {
     if ( operand.index() == 2 )
@@ -227,7 +227,7 @@ bool Interpreter::isTruthy( const Object& object )
 
 bool Interpreter::isEqual( const Object& a, const Object& b )
 {
-    // Both null
+    // Both are null
     if ( a.index() == 0 && b.index() == 0 )
         return true;
 
