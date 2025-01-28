@@ -65,5 +65,21 @@ void Driver::run( const std::string& source )
     if ( Error::hadError )
         return;
 
+    // for ( auto&& statement : statements )
+    // {
+    //     if ( dynamic_cast<Block*>( statement.get() ) )
+    //         std::cout << "Block\n";
+    //     else if ( dynamic_cast<Expression*>( statement.get() ) )
+    //         std::cout << "Expression\n";
+    //     else if ( dynamic_cast<If*>( statement.get() ) )
+    //         std::cout << "If\n";
+    //     else if ( dynamic_cast<Print*>( statement.get() ) )
+    //         std::cout << "Print\n";
+    //     else if ( dynamic_cast<Var*>( statement.get() ) )
+    //         std::cout << "Var\n";
+    //     else if ( dynamic_cast<While*>( statement.get() ) )
+    //         std::cout << "While\n";
+    // }
+
     Driver::interpreter.interpret( statements );
 }

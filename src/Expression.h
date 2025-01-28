@@ -56,11 +56,26 @@ struct Literal : public Expr
 {
     void accept( IVisitor* visitor ) override;
 
-    Literal( const Object value ) : value{ value }
+    Literal( const Object& value ) : value{ value }
     {
     }
 
     Object value;
+};
+
+struct Logical : public Expr
+{
+    void accept( IVisitor* visitor ) override;
+
+    Logical( std::unique_ptr<Expr> left, const Token& op,
+             std::unique_ptr<Expr> right )
+        : left{ std::move( left ) }, op{ op }, right{ std::move( right ) }
+    {
+    }
+
+    std::unique_ptr<Expr> left;
+    Token op;
+    std::unique_ptr<Expr> right;
 };
 
 struct Unary : public Expr

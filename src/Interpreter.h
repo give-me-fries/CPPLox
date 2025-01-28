@@ -18,13 +18,16 @@ public:
     void visit( Binary* expr ) override;
     void visit( Grouping* expr ) override;
     void visit( Literal* expr ) override;
+    void visit( Logical* expr ) override;
     void visit( Unary* expr ) override;
     void visit( Variable* expr ) override;
 
     void visit( Block* stmt ) override;
     void visit( Expression* stmt ) override;
+    void visit( If* stmt ) override;
     void visit( Print* stmt ) override;
     void visit( Var* stmt ) override;
+    void visit( While* stmt ) override;
 
 private:
     void evaluate( Expr* expr );
@@ -39,5 +42,5 @@ private:
     std::string stringify( const Object& object );
 
     Object m_object{};
-    Environment environment{};
+    std::shared_ptr<Environment> m_environment{ new Environment{} };
 };

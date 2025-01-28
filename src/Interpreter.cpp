@@ -29,7 +29,7 @@ void Interpreter::interpret(
 void Interpreter::visit( Assign* expr )
 {
     evaluate( expr->value.get() );
-    environment.assign( expr->name, m_object );
+    m_environment->assign( expr->name, m_object );
 }
 
 void Interpreter::visit( Binary* expr )
@@ -130,20 +130,58 @@ void Interpreter::visit( Unary* expr )
     }
 }
 
+void Interpreter::visit( Logical* expr )
+{
+    evaluate( expr->left.get() );
+    Object left = m_object;
+
+    if ( expr->op.getType() == TokenType::OR )
+    {
+        if ( isTruthy( left ) )
+        {
+            m_object = left;
+            return;
+        }
+    }
+    else
+    {
+        if ( !isTruthy( left ) )
+        {
+            m_object = left;
+            return;
+        }
+    }
+
+    evaluate( expr->right.get() );
+}
+
 void Interpreter::visit( Variable* expr )
 {
-    m_object = environment.get( expr->name );
+    m_object = m_environment->get( expr->name );
 }
 
 void Interpreter::visit( Block* stmt )
 {
-    executeBlock( stmt->statements,
-                  std::make_shared<Environment>( environment ) );
+    std::shared_ptr<Environment> env{ new Environment{ m_environment } };
+    executeBlock( stmt->statements, env );
 }
 
 void Interpreter::visit( Expression* stmt )
 {
     evaluate( stmt->expression.get() );
+}
+
+void Interpreter::visit( If* stmt )
+{
+    evaluate( stmt->condition.get() );
+    if ( isTruthy( m_object ) )
+    {
+        execute( stmt->thenBranch.get() );
+    }
+    else if ( stmt->elseBranch.get() )
+    {
+        execute( stmt->elseBranch.get() );
+    }
 }
 
 void Interpreter::visit( Print* stmt )
@@ -161,7 +199,17 @@ void Interpreter::visit( Var* stmt )
         value = m_object;
     }
 
-    environment.define( stmt->name.getLexeme(), value );
+    m_environment->define( stmt->name.getLexeme(), value );
+}
+
+void Interpreter::visit( While* stmt )
+{
+    evaluate( stmt->condition.get() );
+    while ( isTruthy( m_object ) )
+    {
+        execute( stmt->body.get() );
+        evaluate( stmt->condition.get() );
+    }
 }
 
 void Interpreter::evaluate( Expr* expr )
@@ -178,11 +226,11 @@ void Interpreter::executeBlock(
     const std::vector<std::unique_ptr<Stmt>>& statements,
     std::shared_ptr<Environment> environment )
 {
-    auto previous = this->environment;
+    std::shared_ptr<Environment> previous = m_environment;
 
     try
     {
-        this->environment = environment;
+        m_environment = environment;
 
         for ( auto&& statement : statements )
         {
@@ -191,11 +239,11 @@ void Interpreter::executeBlock(
     }
     catch ( ... )
     {
-        this->environment = previous;
+        m_environment = previous;
         throw;
     }
 
-    this->environment = previous;
+    m_environment = previous;
 }
 
 void Interpreter::checkNumberOperand( const Token& op, const Object& operand )
@@ -227,7 +275,7 @@ bool Interpreter::isTruthy( const Object& object )
 
 bool Interpreter::isEqual( const Object& a, const Object& b )
 {
-    // Both are null
+    // Both null
     if ( a.index() == 0 && b.index() == 0 )
         return true;
 
@@ -248,7 +296,7 @@ bool Interpreter::isEqual( const Object& a, const Object& b )
     }
 
     // Booleans
-    if ( a.index() == 3 && a.index() == 3 )
+    if ( a.index() == 3 && b.index() == 3 )
     {
         return std::get<bool>( a ) == std::get<bool>( b );
     }

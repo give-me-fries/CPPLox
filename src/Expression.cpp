@@ -21,6 +21,11 @@ void Literal::accept( IVisitor* visitor )
     visitor->visit( this );
 }
 
+void Logical::accept( IVisitor* visitor )
+{
+    visitor->visit( this );
+}
+
 void Unary::accept( IVisitor* visitor )
 {
     visitor->visit( this );
