@@ -4,7 +4,8 @@
 #include <string>
 #include <variant>
 
-using Object = std::variant<std::monostate, std::string, double, bool>;
+#include "LoxCallable.h"
+#include "Object.h"
 
 namespace TokenType
 {
@@ -86,8 +87,6 @@ namespace TokenType
 
     std::string getType( Type type );
 } // namespace TokenType
-
-std::string objectToString( const Object& obj );
 
 class Token
 {

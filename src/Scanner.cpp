@@ -2,6 +2,7 @@
 #include <variant>
 
 #include "Error.h"
+#include "Object.h"
 #include "Scanner.h"
 #include "Token.h"
 

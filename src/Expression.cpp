@@ -11,6 +11,11 @@ void Binary::accept( IVisitor* visitor )
     visitor->visit( this );
 }
 
+void Call::accept( IVisitor* visitor )
+{
+    visitor->visit( this );
+}
+
 void Grouping::accept( IVisitor* visitor )
 {
     visitor->visit( this );

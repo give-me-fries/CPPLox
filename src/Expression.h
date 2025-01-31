@@ -1,16 +1,16 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "Object.h"
 #include "Token.h"
 #include "Visitor.h"
 
 struct Expr
 {
     virtual void accept( IVisitor* visitor ) = 0;
-    virtual ~Expr()
-    {
-    }
+    virtual ~Expr() = default;
 };
 
 struct Assign : public Expr
@@ -39,6 +39,22 @@ struct Binary : public Expr
     std::unique_ptr<Expr> left;
     Token op;
     std::unique_ptr<Expr> right;
+};
+
+struct Call : public Expr
+{
+    void accept( IVisitor* visitor ) override;
+
+    Call( std::unique_ptr<Expr> callee, const Token& paren,
+          std::vector<std::unique_ptr<Expr>> arguments )
+        : callee{ std::move( callee ) }, paren{ paren },
+          arguments{ std::move( arguments ) }
+    {
+    }
+
+    std::unique_ptr<Expr> callee;
+    Token paren;
+    std::vector<std::unique_ptr<Expr>> arguments;
 };
 
 struct Grouping : public Expr

@@ -1,6 +1,9 @@
 #include <iostream>
+#include <memory>
 #include <string>
 
+#include "LoxCallable.h"
+#include "Object.h"
 #include "Token.h"
 
 std::string TokenType::getType( Type type )
@@ -58,8 +61,12 @@ std::string objectToString( const Object& obj )
         res.erase( res.find_last_not_of( '.' ) + 1, std::string::npos );
         return res;
     }
-    else
+    else if ( obj.index() == 3 )
     {
         return std::get<bool>( obj ) ? "true" : "false";
+    }
+    else
+    {
+        return std::get<std::shared_ptr<LoxCallable>>( obj ).get()->toString();
     }
 }

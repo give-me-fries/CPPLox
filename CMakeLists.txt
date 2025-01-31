@@ -12,6 +12,8 @@ add_executable(
     src/Error.cpp
     src/Expression.cpp
     src/Interpreter.cpp
+    src/LoxClock.cpp
+    src/LoxFunction.cpp
     src/main.cpp
     src/Parser.cpp
     src/Scanner.cpp

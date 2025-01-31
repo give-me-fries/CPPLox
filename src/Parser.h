@@ -4,6 +4,7 @@
 #include <initializer_list>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <variant>
 #include <vector>
 
@@ -34,14 +35,18 @@ private:
     std::unique_ptr<Stmt> forStatement();
     std::unique_ptr<Stmt> ifStatement();
     std::unique_ptr<Stmt> printStatement();
+    std::unique_ptr<Stmt> returnStatement();
     std::unique_ptr<Stmt> varDeclaration();
     std::unique_ptr<Stmt> expressionStatement();
+    std::unique_ptr<Stmt> function( const std::string& kind );
     std::vector<std::unique_ptr<Stmt>> block();
     std::unique_ptr<Expr> equality();
     std::unique_ptr<Expr> comparison();
     std::unique_ptr<Expr> term();
     std::unique_ptr<Expr> factor();
     std::unique_ptr<Expr> unary();
+    std::unique_ptr<Expr> call();
+    std::unique_ptr<Expr> finishCall( std::unique_ptr<Expr> expr );
     std::unique_ptr<Expr> primary();
     bool match( std::initializer_list<TokenType::Type> types );
     Token& consume( TokenType::Type type, const std::string& message );

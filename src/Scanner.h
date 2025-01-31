@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 
+#include "Object.h"
 #include "Token.h"
 
 class Scanner

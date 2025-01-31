@@ -7,8 +7,19 @@
 #include "Error.h"
 #include "Expression.h"
 #include "Interpreter.h"
+#include "LoxCallable.h"
+#include "LoxClock.h"
+#include "LoxFunction.h"
+#include "Object.h"
+#include "ReturnValue.h"
 #include "Statement.h"
 #include "Token.h"
+
+Interpreter::Interpreter()
+{
+    m_globals->define( "clock", Object{ std::make_shared<LoxClock>(
+                                    std::move( LoxClock{} ) ) } );
+}
 
 void Interpreter::interpret(
     const std::vector<std::unique_ptr<Stmt>>& statements )
@@ -99,6 +110,39 @@ void Interpreter::visit( Binary* expr )
     }
 }
 
+void Interpreter::visit( Call* expr )
+{
+    evaluate( expr->callee.get() );
+    Object callee = m_object;
+
+    std::vector<Object> arguments{};
+    for ( auto&& argument : expr->arguments )
+    {
+        evaluate( argument.get() );
+        arguments.push_back( m_object );
+    }
+
+    std::shared_ptr<LoxCallable> function;
+
+    if ( !std::holds_alternative<std::shared_ptr<LoxCallable>>( callee ) )
+    {
+        throw Error::RuntimeError{ expr->paren,
+                                   "Can only call functions and classes." };
+    }
+
+    function = std::get<std::shared_ptr<LoxCallable>>( callee );
+
+    if ( static_cast<int>( arguments.size() ) != function->arity() )
+    {
+        throw Error::RuntimeError{
+            expr->paren, "Expected " + std::to_string( function->arity() ) +
+                             " arguments but got " +
+                             std::to_string( arguments.size() ) + "." };
+    }
+
+    m_object = function->call( *this, arguments );
+}
+
 void Interpreter::visit( Grouping* expr )
 {
     evaluate( expr->expr.get() );
@@ -171,6 +215,13 @@ void Interpreter::visit( Expression* stmt )
     evaluate( stmt->expression.get() );
 }
 
+void Interpreter::visit( Function* stmt )
+{
+    std::shared_ptr<LoxFunction> function{
+        new LoxFunction{ stmt, m_environment } };
+    m_environment->define( stmt->name.getLexeme(), Object{ function } );
+}
+
 void Interpreter::visit( If* stmt )
 {
     evaluate( stmt->condition.get() );
@@ -188,6 +239,18 @@ void Interpreter::visit( Print* stmt )
 {
     evaluate( stmt->expression.get() );
     std::cout << stringify( m_object ) << '\n';
+}
+
+void Interpreter::visit( Return* stmt )
+{
+    Object value{ std::monostate{} };
+    if ( stmt->value != nullptr )
+    {
+        evaluate( stmt->value.get() );
+        value = m_object;
+    }
+
+    throw ReturnValue{ value };
 }
 
 void Interpreter::visit( Var* stmt )
