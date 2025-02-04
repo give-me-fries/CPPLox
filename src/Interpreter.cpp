@@ -40,7 +40,17 @@ void Interpreter::interpret(
 void Interpreter::visit( Assign* expr )
 {
     evaluate( expr->value.get() );
-    m_environment->assign( expr->name, m_object );
+    Object value = m_object;
+
+    if ( m_locals.find( expr ) != m_locals.end() )
+    {
+        int distance = m_locals[expr];
+        m_environment->assignAt( distance, expr->name, value );
+    }
+    else
+    {
+        m_globals->assign( expr->name, value );
+    }
 }
 
 void Interpreter::visit( Binary* expr )
@@ -201,7 +211,7 @@ void Interpreter::visit( Logical* expr )
 
 void Interpreter::visit( Variable* expr )
 {
-    m_object = m_environment->get( expr->name );
+    m_object = lookUpVariable( expr->name, expr );
 }
 
 void Interpreter::visit( Block* stmt )
@@ -273,6 +283,11 @@ void Interpreter::visit( While* stmt )
         execute( stmt->body.get() );
         evaluate( stmt->condition.get() );
     }
+}
+
+void Interpreter::resolve( Expr* expr, int depth )
+{
+    m_locals[expr] = depth;
 }
 
 void Interpreter::evaluate( Expr* expr )
@@ -374,4 +389,17 @@ std::string Interpreter::stringify( const Object& object )
         return "nil";
     else
         return objectToString( object );
+}
+
+Object Interpreter::lookUpVariable( const Token& name, Expr* expr )
+{
+    if ( m_locals.find( expr ) != m_locals.end() )
+    {
+        int distance = m_locals[expr];
+        return m_environment->getAt( distance, name.getLexeme() );
+    }
+    else
+    {
+        return m_globals->get( name );
+    }
 }

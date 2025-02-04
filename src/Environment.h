@@ -20,6 +20,9 @@ public:
     }
 
     void define( const std::string& name, const Object& value );
+    Environment* ancestor( int distance );
+    Object getAt( int distance, const std::string& name );
+    void assignAt( int distance, const Token& name, const Object& value );
     Object get( const Token& name );
     void assign( const Token& name, const Object& value );
 

@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -38,12 +39,15 @@ public:
     void visit( Var* stmt ) override;
     void visit( While* stmt ) override;
 
+    void resolve( Expr* expr, int depth );
+
     friend Object LoxFunction::call( Interpreter& interpreter,
                                      const std::vector<Object>& arguments );
 
 private:
     void evaluate( Expr* expr );
     void execute( Stmt* stmt );
+
     void executeBlock( const std::vector<std::unique_ptr<Stmt>>& statements,
                        std::shared_ptr<Environment> environment );
     void checkNumberOperand( const Token& op, const Object& operand );
@@ -53,7 +57,10 @@ private:
     bool isEqual( const Object& a, const Object& b );
     std::string stringify( const Object& object );
 
+    Object lookUpVariable( const Token& name, Expr* expr );
+
     Object m_object{};
     std::shared_ptr<Environment> m_globals{ new Environment{} };
     std::shared_ptr<Environment> m_environment = m_globals;
+    std::map<Expr*, int> m_locals{};
 };

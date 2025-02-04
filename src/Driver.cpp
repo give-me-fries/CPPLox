@@ -9,6 +9,7 @@
 #include "Error.h"
 #include "Interpreter.h"
 #include "Parser.h"
+#include "Resolver.h"
 #include "Scanner.h"
 #include "Statement.h"
 #include "Token.h"
@@ -65,21 +66,11 @@ void Driver::run( const std::string& source )
     if ( Error::hadError )
         return;
 
-    // for ( auto&& statement : statements )
-    // {
-    //     if ( dynamic_cast<Block*>( statement.get() ) )
-    //         std::cout << "Block\n";
-    //     else if ( dynamic_cast<Expression*>( statement.get() ) )
-    //         std::cout << "Expression\n";
-    //     else if ( dynamic_cast<If*>( statement.get() ) )
-    //         std::cout << "If\n";
-    //     else if ( dynamic_cast<Print*>( statement.get() ) )
-    //         std::cout << "Print\n";
-    //     else if ( dynamic_cast<Var*>( statement.get() ) )
-    //         std::cout << "Var\n";
-    //     else if ( dynamic_cast<While*>( statement.get() ) )
-    //         std::cout << "While\n";
-    // }
+    Resolver resolver{ interpreter };
+    resolver.resolve( statements );
+
+    if ( Error::hadError )
+        return;
 
     Driver::interpreter.interpret( statements );
 }

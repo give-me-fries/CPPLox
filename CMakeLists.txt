@@ -16,6 +16,7 @@ add_executable(
     src/LoxFunction.cpp
     src/main.cpp
     src/Parser.cpp
+    src/Resolver.cpp
     src/Scanner.cpp
     src/Statement.cpp
     src/Token.cpp
