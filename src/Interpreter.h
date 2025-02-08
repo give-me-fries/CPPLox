@@ -24,13 +24,17 @@ public:
     void visit( Assign* expr ) override;
     void visit( Binary* expr ) override;
     void visit( Call* expr ) override;
+    void visit( Get* expr ) override;
     void visit( Grouping* expr ) override;
     void visit( Literal* expr ) override;
     void visit( Logical* expr ) override;
+    void visit( Set* expr ) override;
+    void visit( This* expr ) override;
     void visit( Unary* expr ) override;
     void visit( Variable* expr ) override;
 
     void visit( Block* stmt ) override;
+    void visit( ClassStmt* stmt ) override;
     void visit( Expression* stmt ) override;
     void visit( Function* stmt ) override;
     void visit( If* stmt ) override;

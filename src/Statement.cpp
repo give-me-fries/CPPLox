@@ -6,6 +6,11 @@ void Block::accept( IVisitor* visitor )
     visitor->visit( this );
 }
 
+void ClassStmt::accept( IVisitor* visitor )
+{
+    visitor->visit( this );
+}
+
 void Expression::accept( IVisitor* visitor )
 {
     visitor->visit( this );

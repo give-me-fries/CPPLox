@@ -25,6 +25,10 @@ std::unique_ptr<Stmt> Parser::declaration()
 {
     try
     {
+        if ( match( { TokenType::CLASS } ) )
+        {
+            return classDeclaration();
+        }
         if ( match( { TokenType::FUN } ) )
         {
             return function( "function" );
@@ -41,6 +45,22 @@ std::unique_ptr<Stmt> Parser::declaration()
         synchronize();
         return nullptr;
     }
+}
+
+std::unique_ptr<Stmt> Parser::classDeclaration()
+{
+    Token name = consume( TokenType::IDENTIFIER, "Expect class name." );
+    consume( TokenType::LEFT_BRACE, "Expect '{' before class body." );
+
+    std::vector<std::unique_ptr<Function>> methods{};
+    while ( !check( TokenType::RIGHT_BRACE ) && !isAtEnd() )
+    {
+        methods.push_back( std::move( function( "method" ) ) );
+    }
+
+    consume( TokenType::RIGHT_BRACE, "Expect '}' after class body." );
+
+    return std::make_unique<ClassStmt>( name, std::move( methods ) );
 }
 
 std::unique_ptr<Stmt> Parser::statement()
@@ -208,7 +228,7 @@ std::unique_ptr<Stmt> Parser::expressionStatement()
     return std::make_unique<Expression>( std::move( expr ) );
 }
 
-std::unique_ptr<Stmt> Parser::function( const std::string& kind )
+std::unique_ptr<Function> Parser::function( const std::string& kind )
 {
     Token name = consume( TokenType::IDENTIFIER, "Expect " + kind + " name." );
 
@@ -266,6 +286,14 @@ std::unique_ptr<Expr> Parser::assignment()
         {
             Token name = dynamic_cast<Variable*>( expr.get() )->name;
             return std::make_unique<Assign>( name, std::move( value ) );
+        }
+        else if ( dynamic_cast<Get*>( expr.get() ) )
+        {
+            Token name = dynamic_cast<Get*>( expr.get() )->name;
+            std::unique_ptr<Expr> object =
+                std::move( dynamic_cast<Get*>( expr.get() )->object );
+            return std::make_unique<Set>( std::move( object ), name,
+                                          std::move( value ) );
         }
 
         Error::error( equals, "Invalid assignment target." );
@@ -387,6 +415,12 @@ std::unique_ptr<Expr> Parser::call()
         {
             expr = finishCall( std::move( expr ) );
         }
+        else if ( match( { TokenType::DOT } ) )
+        {
+            Token name = consume( TokenType::IDENTIFIER,
+                                  "Expect property name after '.'" );
+            expr = std::make_unique<Get>( std::move( expr ), name );
+        }
         else
         {
             break;
@@ -430,6 +464,9 @@ std::unique_ptr<Expr> Parser::primary()
 
     if ( match( { TokenType::NUMBER, TokenType::STRING } ) )
         return std::make_unique<Literal>( Object{ previous().getLiteral() } );
+
+    if ( match( { TokenType::THIS } ) )
+        return std::make_unique<This>( previous() );
 
     if ( match( { TokenType::IDENTIFIER } ) )
         return std::make_unique<Variable>( previous() );

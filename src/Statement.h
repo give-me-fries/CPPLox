@@ -25,6 +25,20 @@ struct Block : public Stmt
     std::vector<std::unique_ptr<Stmt>> statements;
 };
 
+struct ClassStmt : public Stmt
+{
+    void accept( IVisitor* visitor ) override;
+
+    ClassStmt( const Token& name,
+               std::vector<std::unique_ptr<Function>> methods )
+        : name{ name }, methods{ std::move( methods ) }
+    {
+    }
+
+    Token name;
+    std::vector<std::unique_ptr<Function>> methods;
+};
+
 struct Expression : public Stmt
 {
     void accept( IVisitor* visitor ) override;

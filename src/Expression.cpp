@@ -16,6 +16,11 @@ void Call::accept( IVisitor* visitor )
     visitor->visit( this );
 }
 
+void Get::accept( IVisitor* visitor )
+{
+    visitor->visit( this );
+}
+
 void Grouping::accept( IVisitor* visitor )
 {
     visitor->visit( this );
@@ -27,6 +32,16 @@ void Literal::accept( IVisitor* visitor )
 }
 
 void Logical::accept( IVisitor* visitor )
+{
+    visitor->visit( this );
+}
+
+void Set::accept( IVisitor* visitor )
+{
+    visitor->visit( this );
+}
+
+void This::accept( IVisitor* visitor )
 {
     visitor->visit( this );
 }

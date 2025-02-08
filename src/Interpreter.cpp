@@ -8,8 +8,10 @@
 #include "Expression.h"
 #include "Interpreter.h"
 #include "LoxCallable.h"
+#include "LoxClass.h"
 #include "LoxClock.h"
 #include "LoxFunction.h"
+#include "LoxInstance.h"
 #include "Object.h"
 #include "ReturnValue.h"
 #include "Statement.h"
@@ -153,6 +155,19 @@ void Interpreter::visit( Call* expr )
     m_object = function->call( *this, arguments );
 }
 
+void Interpreter::visit( Get* expr )
+{
+    evaluate( expr->object.get() );
+    if ( std::holds_alternative<std::shared_ptr<LoxInstance>>( m_object ) )
+    {
+        m_object = std::get<std::shared_ptr<LoxInstance>>( m_object )
+                       ->get( expr->name );
+        return;
+    }
+
+    throw Error::RuntimeError{ expr->name, "Only instances have properties." };
+}
+
 void Interpreter::visit( Grouping* expr )
 {
     evaluate( expr->expr.get() );
@@ -161,27 +176,6 @@ void Interpreter::visit( Grouping* expr )
 void Interpreter::visit( Literal* expr )
 {
     m_object = expr->value;
-}
-
-void Interpreter::visit( Unary* expr )
-{
-    evaluate( expr->right.get() );
-
-    Object right = m_object;
-
-    switch ( expr->op.getType() )
-    {
-    case TokenType::BANG:
-        m_object = !isTruthy( right );
-        return;
-    case TokenType::MINUS:
-        checkNumberOperand( expr->op, right );
-        m_object = -std::get<double>( right );
-        return;
-    default:
-        m_object = std::monostate{};
-        return;
-    }
 }
 
 void Interpreter::visit( Logical* expr )
@@ -209,6 +203,48 @@ void Interpreter::visit( Logical* expr )
     evaluate( expr->right.get() );
 }
 
+void Interpreter::visit( Set* expr )
+{
+    evaluate( expr->object.get() );
+    Object object = m_object;
+
+    if ( !std::holds_alternative<std::shared_ptr<LoxInstance>>( object ) )
+    {
+        throw Error::RuntimeError{ expr->name, "Only instances have fields." };
+    }
+
+    evaluate( expr->value.get() );
+    Object value = m_object;
+    std::get<std::shared_ptr<LoxInstance>>( object ).get()->set( expr->name,
+                                                                 value );
+}
+
+void Interpreter::visit( This* expr )
+{
+    m_object = lookUpVariable( expr->keyword, expr );
+}
+
+void Interpreter::visit( Unary* expr )
+{
+    evaluate( expr->right.get() );
+
+    Object right = m_object;
+
+    switch ( expr->op.getType() )
+    {
+    case TokenType::BANG:
+        m_object = !isTruthy( right );
+        return;
+    case TokenType::MINUS:
+        checkNumberOperand( expr->op, right );
+        m_object = -std::get<double>( right );
+        return;
+    default:
+        m_object = std::monostate{};
+        return;
+    }
+}
+
 void Interpreter::visit( Variable* expr )
 {
     m_object = lookUpVariable( expr->name, expr );
@@ -220,6 +256,23 @@ void Interpreter::visit( Block* stmt )
     executeBlock( stmt->statements, env );
 }
 
+void Interpreter::visit( ClassStmt* stmt )
+{
+    m_environment->define( stmt->name.getLexeme(), Object{ std::monostate{} } );
+
+    std::map<std::string, std::shared_ptr<LoxFunction>> methods;
+    for ( auto&& method : stmt->methods )
+    {
+        std::shared_ptr<LoxFunction> function = std::make_shared<LoxFunction>(
+            method.get(), m_environment, method->name.getLexeme() == "init" );
+        methods.emplace( method.get()->name.getLexeme(), function );
+    }
+
+    std::shared_ptr<LoxClass> klass{
+        new LoxClass{ stmt->name.getLexeme(), methods } };
+    m_environment->assign( stmt->name, Object{ klass } );
+}
+
 void Interpreter::visit( Expression* stmt )
 {
     evaluate( stmt->expression.get() );
@@ -228,7 +281,7 @@ void Interpreter::visit( Expression* stmt )
 void Interpreter::visit( Function* stmt )
 {
     std::shared_ptr<LoxFunction> function{
-        new LoxFunction{ stmt, m_environment } };
+        new LoxFunction{ stmt, m_environment, false } };
     m_environment->define( stmt->name.getLexeme(), Object{ function } );
 }
 

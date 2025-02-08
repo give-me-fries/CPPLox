@@ -3,6 +3,7 @@
 #include <string>
 
 #include "LoxCallable.h"
+#include "LoxInstance.h"
 #include "Object.h"
 #include "Token.h"
 
@@ -65,8 +66,12 @@ std::string objectToString( const Object& obj )
     {
         return std::get<bool>( obj ) ? "true" : "false";
     }
-    else
+    else if ( obj.index() == 4 )
     {
         return std::get<std::shared_ptr<LoxCallable>>( obj ).get()->toString();
+    }
+    else
+    {
+        return std::get<std::shared_ptr<LoxInstance>>( obj ).get()->toString();
     }
 }

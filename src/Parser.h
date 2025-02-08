@@ -30,6 +30,7 @@ private:
     std::unique_ptr<Expr> orExpression();
     std::unique_ptr<Expr> andExpression();
     std::unique_ptr<Stmt> declaration();
+    std::unique_ptr<Stmt> classDeclaration();
     std::unique_ptr<Stmt> whileStatement();
     std::unique_ptr<Stmt> statement();
     std::unique_ptr<Stmt> forStatement();
@@ -38,7 +39,7 @@ private:
     std::unique_ptr<Stmt> returnStatement();
     std::unique_ptr<Stmt> varDeclaration();
     std::unique_ptr<Stmt> expressionStatement();
-    std::unique_ptr<Stmt> function( const std::string& kind );
+    std::unique_ptr<Function> function( const std::string& kind );
     std::vector<std::unique_ptr<Stmt>> block();
     std::unique_ptr<Expr> equality();
     std::unique_ptr<Expr> comparison();

@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "Object.h"
@@ -57,6 +58,19 @@ struct Call : public Expr
     std::vector<std::unique_ptr<Expr>> arguments;
 };
 
+struct Get : public Expr
+{
+    void accept( IVisitor* visitor ) override;
+
+    Get( std::unique_ptr<Expr> object, const Token& name )
+        : object{ std::move( object ) }, name{ name }
+    {
+    }
+
+    std::unique_ptr<Expr> object;
+    Token name;
+};
+
 struct Grouping : public Expr
 {
     void accept( IVisitor* visitor ) override;
@@ -92,6 +106,33 @@ struct Logical : public Expr
     std::unique_ptr<Expr> left;
     Token op;
     std::unique_ptr<Expr> right;
+};
+
+struct Set : public Expr
+{
+    void accept( IVisitor* visitor ) override;
+
+    Set( std::unique_ptr<Expr> object, const Token& name,
+         std::unique_ptr<Expr> value )
+        : object{ std::move( object ) }, name{ name },
+          value{ std::move( value ) }
+    {
+    }
+
+    std::unique_ptr<Expr> object;
+    Token name;
+    std::unique_ptr<Expr> value;
+};
+
+struct This : public Expr
+{
+    void accept( IVisitor* visitor ) override;
+
+    This( const Token& keyword ) : keyword{ keyword }
+    {
+    }
+
+    Token keyword;
 };
 
 struct Unary : public Expr
