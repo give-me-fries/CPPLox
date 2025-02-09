@@ -29,6 +29,7 @@ public:
     void visit( Literal* expr ) override;
     void visit( Logical* expr ) override;
     void visit( Set* expr ) override;
+    void visit( Super* expr ) override;
     void visit( This* expr ) override;
     void visit( Unary* expr ) override;
     void visit( Variable* expr ) override;

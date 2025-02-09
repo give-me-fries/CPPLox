@@ -41,6 +41,11 @@ void Set::accept( IVisitor* visitor )
     visitor->visit( this );
 }
 
+void Super::accept( IVisitor* visitor )
+{
+    visitor->visit( this );
+}
+
 void This::accept( IVisitor* visitor )
 {
     visitor->visit( this );

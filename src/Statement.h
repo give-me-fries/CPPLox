@@ -29,13 +29,15 @@ struct ClassStmt : public Stmt
 {
     void accept( IVisitor* visitor ) override;
 
-    ClassStmt( const Token& name,
+    ClassStmt( const Token& name, std::unique_ptr<Variable> superclass,
                std::vector<std::unique_ptr<Function>> methods )
-        : name{ name }, methods{ std::move( methods ) }
+        : name{ name }, superclass{ std::move( superclass ) },
+          methods{ std::move( methods ) }
     {
     }
 
     Token name;
+    std::unique_ptr<Variable> superclass;
     std::vector<std::unique_ptr<Function>> methods;
 };
 

@@ -124,6 +124,19 @@ struct Set : public Expr
     std::unique_ptr<Expr> value;
 };
 
+struct Super : public Expr
+{
+    void accept( IVisitor* visitor ) override;
+
+    Super( const Token& keyword, const Token& method )
+        : keyword{ keyword }, method{ method }
+    {
+    }
+
+    Token keyword;
+    Token method;
+};
+
 struct This : public Expr
 {
     void accept( IVisitor* visitor ) override;

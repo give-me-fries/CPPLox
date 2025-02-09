@@ -8,6 +8,7 @@ struct Grouping;
 struct Literal;
 struct Logical;
 struct Set;
+struct Super;
 struct This;
 struct Unary;
 struct Variable;
@@ -32,6 +33,7 @@ struct IVisitor
     virtual void visit( Literal* ) = 0;
     virtual void visit( Logical* ) = 0;
     virtual void visit( Set* ) = 0;
+    virtual void visit( Super* ) = 0;
     virtual void visit( This* ) = 0;
     virtual void visit( Unary* ) = 0;
     virtual void visit( Variable* ) = 0;

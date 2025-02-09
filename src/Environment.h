@@ -26,7 +26,8 @@ public:
     Object get( const Token& name );
     void assign( const Token& name, const Object& value );
 
-private:
     std::shared_ptr<Environment> m_enclosing = nullptr;
+
+private:
     std::map<std::string, Object> m_values{};
 };

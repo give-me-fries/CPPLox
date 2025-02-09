@@ -50,8 +50,15 @@ std::unique_ptr<Stmt> Parser::declaration()
 std::unique_ptr<Stmt> Parser::classDeclaration()
 {
     Token name = consume( TokenType::IDENTIFIER, "Expect class name." );
-    consume( TokenType::LEFT_BRACE, "Expect '{' before class body." );
 
+    std::unique_ptr<Variable> superclass = nullptr;
+    if ( match( { TokenType::LESS } ) )
+    {
+        consume( TokenType::IDENTIFIER, "Expect superclass name." );
+        superclass = std::make_unique<Variable>( previous() );
+    }
+
+    consume( TokenType::LEFT_BRACE, "Expect '{' before class body." );
     std::vector<std::unique_ptr<Function>> methods{};
     while ( !check( TokenType::RIGHT_BRACE ) && !isAtEnd() )
     {
@@ -60,7 +67,8 @@ std::unique_ptr<Stmt> Parser::classDeclaration()
 
     consume( TokenType::RIGHT_BRACE, "Expect '}' after class body." );
 
-    return std::make_unique<ClassStmt>( name, std::move( methods ) );
+    return std::make_unique<ClassStmt>( name, std::move( superclass ),
+                                        std::move( methods ) );
 }
 
 std::unique_ptr<Stmt> Parser::statement()
@@ -464,6 +472,15 @@ std::unique_ptr<Expr> Parser::primary()
 
     if ( match( { TokenType::NUMBER, TokenType::STRING } ) )
         return std::make_unique<Literal>( Object{ previous().getLiteral() } );
+
+    if ( match( { TokenType::SUPER } ) )
+    {
+        Token keyword = previous();
+        consume( TokenType::DOT, "Expect '.' after 'super'." );
+        Token method =
+            consume( TokenType::IDENTIFIER, "Expect superclass method name." );
+        return std::make_unique<Super>( keyword, method );
+    }
 
     if ( match( { TokenType::THIS } ) )
         return std::make_unique<This>( previous() );
